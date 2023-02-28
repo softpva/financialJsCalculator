@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EXPRESSION CALCULATOR</title>
+    <link href="./styles.css" rel="stylesheet" />
+    <!-- <script type="module" src="./drawCanvas.js" defer></script> -->
+    <script type="module" src="./main.js"></script>
+</head>
+
+<body>
+    <div class="grid">
+        <canvas id="canvas"></canvas>
+        <div class="topleft">
+            <div data-pv class="top-financ">PV: </div>
+            <div data-fv class="top-financ">FV: </div>
+            <div data-n class="top-financ">n: </div>
+        </div>
+        <div class="topright">
+            <div data-irn class="top-financ">IR/n: </div>
+            <div data-pn class="top-financ">Pay/n: </div>
+            <div data-tot class="top-financ">Total: </div>
+        </div>
+        <div class="top">
+            <div data-expression class="top-expression"></div>
+            <div data-current class="top-current">0</div>
+        </div>
+        <button data-num>1</button>
+        <button data-num>2</button>
+        <button data-num>3</button>
+        <button data-com>+/-</button>        
+        <button data-op>*</button>
+        <button data-op>/</button>      
+        <button data-com>AC</button>  
+        <button data-com>DEL</button>        
+        <button data-num>4</button>
+        <button data-num>5</button>
+        <button data-num>6</button>
+        <button data-num>.</button>        
+        <button data-op>+</button>
+        <button data-op>-</button>        
+        <button title="Present Value - press '.' if you want setting to 0" data-fin>PV</button>
+        <button title="Future Value - press '.' if you want setting to 0" data-fin>FV</button>
+        <button data-num>7</button>
+        <button data-num>8</button>
+        <button data-num>9</button>
+        <button data-num>0</button>
+        <button data-com id="equal">=</button>  
+        <button title="Number of time periods - press '.' if you want setting to 0" data-fin>n</button>
+        <button title="Interest Rate by time period - press '.' if you want setting to 0" data-fin>IR/n</button>
+        <button title="Payment in each time period - press '.' if you want setting to 0" data-fin>Pay/n</button>
+    </div>
+</body>
+
+</html>
