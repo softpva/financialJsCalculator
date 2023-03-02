@@ -4,7 +4,7 @@
 [![es](https://img.shields.io/badge/lang-es-yellow.svg)](./README.es.md)
   
 
-# <pre>**E N  D E S A R R O L L O**</pre>
+# <pre>**E N    D E S A R R O L L O**</pre>
 
 # Cerca de:
 > Una calculadora financiera desarrollada en html-css-js
