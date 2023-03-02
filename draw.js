@@ -39,9 +39,12 @@ export default function draw(canvas,data) {
         ctx.rotate(-Math.PI/2); // -pi/2
         if (i === 0) ctx.fillText(data[i], -height/2, hFont);
         if (i !== 0 && i !== data.length - 1) ctx.fillText(data[i], 1, 0);        
+        // TODO: refactor the code below
         if (i === data.length - 1){
-            if (data[i - 1] > 0) ctx.fillText(data[i-1] + ' & ' + (data[i]-data[i-1]) , -height/2, 0)
-            else ctx.fillText(data[i], -height/2, 0)
+            if (data[i - 1] > 0 && data[i] !== data[i-1]) ctx.fillText(data[i-1] + ' & ' + (data[i]-data[i-1]) , -height/2, 0)
+            else if (data[i - 1] === 0){
+                ctx.fillText(data[i], -height/2, 0);
+            }else ctx.fillText(data[i-1], 1, 0);
         }
         // i === 0 ? ctx.fillText(data[i], 1, hFont): ctx.fillText(data[i], 1, 0) ;
         ctx.restore();

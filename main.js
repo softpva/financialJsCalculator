@@ -2,14 +2,16 @@ import draw from "./draw.js";
 
 
 // Cases:
-    // 0 - members: n, irn, pv, fv, pn 
-    // 1 - input: n, irn, pv/pn output: fv
-    // 2 - input: n, irn, fv/pn output: pv
-    // 3 - input: irn, pv/pn, fv output: n
-    // 4 - input: n, pv/pn, fv output: irn
-    // 5 - input: n, irn, pv, fv output: pn
-    // TEST: test with simple data
-    // TODO: check if the inputs are valid and consistent values, embebed draw.js in this class, insert alerts?, used toFixed() or toPrecision() and eliminate the round() method?, create a new js project and copy this file and ajust other, Change the layout to 8 columns to expand canvas horizontally and vertically? (4x6=24 -> 3x8=24)
+// 0 - members: n, irn, pv, fv, pn 
+// 1 - input: n, irn, pv/pn output: fv
+// 2 - input: n, irn, fv/pn output: pv
+// 3 - input: irn, pv/pn, fv output: n
+// 4 - input: n, pv/pn, fv output: irn
+// 5 - input: n, irn, pv, fv output: pn
+// TEST: test with simple data
+// TODO: check if the inputs are valid and consistent values, embebed draw.js in this class, insert alerts?, used toFixed() or toPrecision() and eliminate the round() method?, reuse the value showed to eventual operator operation (maybe put The ... in the expression field and the result in the number field)
+// FIXME: the monthly calculation is not correct, after insert a fv and recalculate then.
+
 
 
 class Calculator {
@@ -117,7 +119,7 @@ class Calculator {
     }
 
     #calculatePayPerPeriod() {
-        if ((this.n_pv > 0.0 || this.n_fv > 0.0) && this.i_n > 0 && this.n_irn > 0 && this.n_pn >= 0.0) {            
+        if ((this.n_pv > 0.0 || this.n_fv > 0.0) && this.i_n > 0 && this.n_irn > 0 && this.n_pn >= 0.0) {
             let a = this.n_pv * this.n_irn * Math.pow((1 + this.n_irn), this.i_n);
             let b = Math.pow((1 + this.n_irn), this.i_n) - 1;
             this.n_pn = a / b;
@@ -126,7 +128,7 @@ class Calculator {
             this.s_number = 'The payment per period is: ' + this.round(this.n_pn, 5);
         } else return;
     }
-    
+
     doFinanc(inner) {
         if (inner === 'PV') {
             if (this.s_number === '0' || this.s_number[0] === 'T') {
@@ -177,19 +179,18 @@ class Calculator {
     }
 
     draw_canvas() {
-        if (this.i_n > 0) {            
+        if (this.i_n > 0) {
             let canvas = document.getElementById("canvas");
             let data = [Math.round(this.n_pv)];
-            for (let i = 0; i < this.i_n - 1; i++)
-                data.push(Math.round(this.n_pn));
+            for (let i = 0; i < this.i_n; i++)
+                data.push(Math.round(this.n_pn));            
             if (this.n_fv > 0)
-                data.push(Math.round(this.n_fv + this.n_pn));
+                data[this.i_n] = Math.round(this.n_fv + this.n_pn);
             canvas.width = canvas.width;
             draw(canvas, data);
             console.log(data);
             this.show();
         } else return;
-
     }
 
     equalPressed() {
