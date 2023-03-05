@@ -8,12 +8,25 @@ import draw from "./draw.js";
 // 3 - input: irn, pv/pn, fv output: n
 // 4 - input: n, pv/pn, fv output: irn
 // 5 - input: n, irn, pv, fv output: pn
-// TEST: test with simple data
+/* FIXME the worng cases above: 
+1 - All ok
+2 - All ok
+3 - All ok
+4 - n, pv, pn -> irn = 0 doesn't work  <--- next
+4 - n, pv, fv -> irn ok
+4 - n, pn, fv -> irn ok
+
+*/
 
 /* 
 TODO: 
-*** Check if the inputs are valid and consistent values, embebed draw.js in this class, insert alerts?, used toFixed() or toPrecision() and eliminate the round() method?
+*** Check if the inputs are valid and consistent values, embebed draw.js in this class, insert alerts?
+*** Use toFixed() or toPrecision() and eliminate the round() method
 *** Think about the meaning of Total value.
+*** After n > x cavas must doesn't print individual values of pay/n.
+*** If the required fields are empty, show a message to fill them in.
+*** If the required fields are filled in, but the values are not valid, show a message to fill them in correctly.
+*** Show on canvas the value on irn.
 
 FIXME: 
 *** The monthly calculation is not correctly if after we insert a fv and recalculate it. (very wrong!!!)
@@ -50,8 +63,13 @@ class Calculator {
             this.s_number = '0';
             this.s_expression = '';
         }
-        if (this.s_number[0] === 'T') this.s_number = '';
-        if (this.s_number.includes('.') && num === '.') return;
+        if (this.s_expression[0] === 'T' && num === '.'){
+            this.s_number = '.';
+            this.s_expression = '';
+            this.show();
+            return;
+        }
+        if (this.s_number.includes('.') && num === '.') return; 
         if (this.s_number[0] === '0' && this.s_number[1] !== '.') this.s_number = '';
         this.s_number += num;
         if (this.s_number[0] === '.') this.s_number = "0.";
@@ -68,6 +86,7 @@ class Calculator {
 
     #calculatePresentValue() {
         if ((this.n_fv > 0.0 || this.n_pn > 0.0) && this.i_n > 0 && this.n_irn > 0.0 && this.n_pv >= 0.0) {
+            if(this.s_number ==='.') this.pv = 0.0;
             this.n_pv = (this.n_fv - this.n_pn * (1 + this.n_irn) * ((1 - Math.pow((1 + this.n_irn), this.i_n)) / this.n_irn)) / Math.pow((1 + this.n_irn), this.i_n);
             if (this.n_pv < 0) return;
             this.e_pv.innerText = "PV: " + this.round(this.n_pv);
@@ -75,7 +94,7 @@ class Calculator {
             this.s_number =  this.round(this.n_pv, 5);
             this.n_tot = this.n_fv + this.n_pn * this.i_n;
             this.e_tot.innerText = "Total: " + this.round(this.n_tot);
-        } else return;
+        }
     }
     #calculateFutureValue() {
         if ((this.n_pv > 0.0 || this.n_pn > 0.0) && this.i_n > 0 && this.n_irn > 0.0 && this.n_fv >= 0.0) {
@@ -88,19 +107,20 @@ class Calculator {
             this.e_tot.innerText = "Total: " + this.round(this.n_tot);
         } else {
             this.n_fv = 0.0;
-            return;
+            return;           
         }
     }
     #calculateNumberOfPeriods() {
-        if ((this.n_pv > 0.0 || this.n_pn > 0.0) && (this.n_fv > 0.0 || this.n_pn > 0.0) && this.n_irn > 0 && this.i_n >= 0) {
+        if ((this.n_pv > 0.0 || this.n_pn > 0.0) && (this.n_fv > 0.0 || this.n_pn > 0.0) && this.n_irn > 0 ) {
             this.i_n = Math.log((this.n_fv * this.n_irn + this.n_pn) / (this.n_pn + this.n_pv * this.n_irn)) / Math.log(1 + this.n_irn);
+            if (this.n_fv === 0) this.i_n *= -1;
             if (this.i_n < 0) return;
             this.e_n.innerText = "n: " + this.i_n;
-            this.s_expression = 'The number of periods is:';
+            this.s_expression = 'The number of periods is approximately:';
             this.s_number =  Math.round(this.i_n);
             this.n_tot = this.n_pv + this.n_pn * this.i_n;
             this.e_tot.innerText = "Total: " + this.round(this.n_tot);
-        } else return;
+        }
     }
     #calculateInterestRate() {
         if ((this.n_pv > 0.0 || this.n_pn > 0.0) && (this.n_fv > 0.0 || this.n_pn > 0.0) && this.i_n > 0 && this.n_irn >= 0.0) {
@@ -123,6 +143,7 @@ class Calculator {
                     return;
                 }
             }
+            console.log(r);
             if (r < 0) return;
             this.n_irn = r;
             this.e_irn.innerText = "IR/n: " + this.round(this.n_irn);
@@ -130,9 +151,8 @@ class Calculator {
             this.s_number =  this.round(this.n_irn * 100, 5) + ' % / period.';
             this.n_tot = this.n_pv + this.n_pn * this.i_n;
             this.e_tot.innerText = "Total: " + this.round(this.n_tot);
-        } else return;
+        }
     }
-
     #calculatePayPerPeriod() {
         if ((this.n_pv > 0.0 || this.n_fv > 0.0) && this.i_n > 0 && this.n_irn > 0 && this.n_pn >= 0.0) {
             let a = this.n_pv * this.n_irn * Math.pow((1 + this.n_irn), this.i_n);
@@ -143,7 +163,7 @@ class Calculator {
             this.e_pn.innerText = "Pay/n: " + this.n_pn;
             this.s_expression = 'The payment per period is:';
             this.s_number =  this.round(this.n_pn, 5);
-        } else return;
+        }
     }
 
     doFinanc(inner) {
@@ -203,11 +223,11 @@ class Calculator {
             for (let i = 0; i < this.i_n; i++)
                 data.push(Math.round(this.n_pn));
             if (this.n_fv > 0)
-                data[this.i_n] = Math.round(this.n_fv + this.n_pn);
+                data[this.i_n.toFixed(0)] = Math.round(this.n_fv + this.n_pn);
             draw(canvas, data);
             console.log(data);
             this.show();
-        } else return; 
+        }
     }
 
     equalPressed() {
@@ -249,8 +269,7 @@ class Calculator {
         this.n_irn = 0.0;
         this.n_pn = 0.0;
         this.n_tot = 0.0;
-        this.draw_canvas();
-        return;
+        this.draw_canvas();        
     }
 
     delete() {
