@@ -1,28 +1,7 @@
 import draw from "./draw.js";
 
 
-// Cases:
-// 0 - members: n, irn, pv, fv, pmt 
-// 1 - input: n, irn, pv/pmt output: fv
-// 2 - input: n, irn, fv/pmt output: pv
-// 3 - input: irn, pv/pmt, fv output: n
-// 4 - input: n, pv/pmt, fv output: irn
-// 5 - input: n, irn, pv, fv output: pmt
-/* 
-1 - All ok
-2 - All ok
-3 - All ok
-4 - n, pv, fv -> irn ok
-4 - n, pmt, fv -> irn ok
-5 - pv, irn, n -> pmt ok
-5 - fv, irn, n -> pmt ok
-
-FIXME the wrong cases above: 
-4 - n, pv, pmt -> irn = 0 doesn't work  <--- next (separate into 2 methods)
-
-
-RESUME: we need to construct two separated methods or a primary conditional to calculate two different conditions: when we use pv or fv together with pmt.
-
+/*
 TODO: 
 *** Check if the inputs are valid and consistent values, embebed draw.js in this class, insert alerts?
 *** Use toFixed() or toPrecision() and eliminate the round() method
@@ -33,9 +12,6 @@ TODO:
 *** Show on canvas the value on irn.
 *** Change the criteria to turn zero the values of pv, fv, pmt, irn.
 */
-
-
-
 
 class Calculator {
     e_expression = document.querySelector("[data-expression]");
@@ -88,18 +64,18 @@ class Calculator {
     }
 
     n_a() {
-        return Math.pow((1 + this.n_irn),this.i_n);
+        return Math.pow((1 + this.n_irn), this.i_n);
     }
     n_b() {
         return (this.n_a() - 1) / this.n_irn;
     }
     n_c() {
-        return (1 - 1/ this.n_a() )/ this.n_irn;
+        return (1 - 1 / this.n_a()) / this.n_irn;
     }
     calculatePresentValue() {
         if ((this.n_fv > 0.0 || this.n_pmt > 0.0) && this.i_n > 0 && this.n_irn > 0.0 && this.n_pv >= 0.0) {
-            if (this.s_number === '.') this.pv = 0.0;            
-            this.n_pv = this.n_fv/this.n_a() + this.n_pmt * this.n_c();
+            if (this.s_number === '.') this.pv = 0.0;
+            this.n_pv = this.n_fv / this.n_a() + this.n_pmt * this.n_c();
             if (this.n_pv < 0) return;
             this.e_pv.innerText = "PV: " + this.round(this.n_pv);
             this.s_expression = 'The present value is:';
@@ -109,7 +85,7 @@ class Calculator {
         }
     }
     calculateFutureValue() {
-        if ((this.n_pv > 0.0 || this.n_pmt > 0.0) && this.i_n > 0 && this.n_irn > 0.0 && this.n_fv >= 0.0) {                        
+        if ((this.n_pv > 0.0 || this.n_pmt > 0.0) && this.i_n > 0 && this.n_irn > 0.0 && this.n_fv >= 0.0) {
             this.n_fv = this.n_pv * this.n_a() + this.n_pmt * this.n_b();
             if (this.n_fv < 0) return;
             this.e_fv.innerText = "FV: " + this.round(this.n_fv);
@@ -124,7 +100,7 @@ class Calculator {
     }
     calculateNumberOfPeriods() {
         if ((this.n_pv > 0.0 || this.n_pmt > 0.0) && (this.n_fv > 0.0 || this.n_pmt > 0.0) && this.n_irn > 0) {
-            this.i_n = Math.log((this.n_fv * this.n_irn + this.n_pmt) / (this.n_pmt + this.n_pv * this.n_irn)) / Math.log(1 + this.n_irn);            
+            this.i_n = Math.log((this.n_fv * this.n_irn + this.n_pmt) / (this.n_pmt + this.n_pv * this.n_irn)) / Math.log(1 + this.n_irn);
             if (this.n_fv === 0) this.i_n *= -1;
             if (this.i_n < 0) return;
             this.e_n.innerText = "n: " + this.i_n;
@@ -134,97 +110,52 @@ class Calculator {
             this.e_tot.innerText = "Total: " + this.round(this.n_tot);
         }
     }
-// this function calculate the interest rate using i_n, n_pv and n_fv
-// check if it works
-calculateInterestRateUsinhPvAndFv() {
-        if ((this.n_pv > 0.0 || this.n_pmt > 0.0) && (this.n_fv > 0.0 || this.n_pmt > 0.0) && this.i_n > 0 && this.n_irn >= 0.0) {
-            if (this.n_fv === 0.0) this.n_fv = 0.000001;
-            let low = -1.0;
-            let high = 1.0;
-            let r = (low + high) / 2;
-            let i = 0;
-            const tolerance = 0.000001;
-            const maxLoop = 1 / tolerance;
-            while (Math.abs(this.n_fv - this.n_pv * Math.pow((1 + r), this.i_n) - this.n_pmt * (1 + r) * (Math.pow((1 + r), this.i_n) - 1) / r) > tolerance && i < maxLoop) {
-                if (this.n_fv > this.n_pv * Math.pow((1 + r), this.i_n) + this.n_pmt * (1 + r) * (Math.pow((1 + r), this.i_n) - 1) / r) {
-                    low = r;
-                } else {
-                    high = r;
-                }
-                r = (low + high) / 2;
-                i++;
-            }
-            this.n_irn = r;
-            this.e_irn.innerText = "i: " + this.round(this.n_irn * 100, 2) + "%";
-            this.s_expression = 'The interest rate is:';
-            this.s_number = this.round(this.n_irn * 100, 2) + "%";
-            this.n_tot = this.n_pv + this.n_pmt * this.i_n;
-            this.e_tot.innerText = "Total: " + this.round(this.n_tot);
+    // FIXME: this method has a bug when fv > 0, check it.
+    calculateInterestRate() {
+        if (this.n_pv > 0 && this.n_fv > 0 && this.i_n > 0 && this.n_pmt > 0) {
+            // TODO: add other ifs to check data consistency
+            // add msgs
+            return;
         }
-    }
-// by copilot does not work - rewrite using auxiliar consts.
- calculateInterestRate() {
-        if ((this.n_pv > 0.0 || this.n_pmt > 0.0) && (this.n_fv > 0.0 || this.n_pmt > 0.0) && this.i_n > 0 && this.n_irn >= 0.0) {
-            if (this.n_fv === 0.0) this.n_fv = 0.000001;
-            let low = -1.0;
-            let high = 1.0;
-            let r = (low + high) / 2;
-            let i = 0;
-            const tolerance = 0.000001;
-            const maxLoop = 1 / tolerance;
-            while (Math.abs(this.n_fv - this.n_pv * Math.pow((1 + r), this.i_n) - this.n_pmt * (1 + r) * (Math.pow((1 + r), this.i_n) - 1) / r) > tolerance && i < maxLoop) {
-                if (this.n_fv > this.n_pv * Math.pow((1 + r), this.i_n) + this.n_pmt * (1 + r) * (Math.pow((1 + r), this.i_n) - 1) / r) {
-                    low = r;
-                } else {
-                    high = r;
-                }
-                r = (low + high) / 2;
-                i++;
-            }
-            this.n_irn = r;
-            this.e_irn.innerText = "i: " + this.round(this.n_irn * 100, 2) + "%";
-            this.s_expression = 'The interest rate is:';
-            this.s_number = this.round(this.n_irn * 100, 2) + "%";
-            this.n_tot = this.n_pv + this.n_pmt * this.i_n;
-            this.e_tot.innerText = "Total: " + this.round(this.n_tot);
+        if (this.n_pv > 0 && this.n_fv > 0 && this.i_n > 0 && this.n_pmt === 0) {
+            this.n_irn = Math.pow((this.n_fv / this.n_pv), (1 / this.i_n)) - 1;
         }
+        if ((this.n_pv > 0 || this.n_fv > 0) && this.i_n > 0 && this.n_pmt > 0) {
+            const irnInc = 0.0001;
+            let n_calc = 0.0;
+            let i = 0;
+            if (this.n_pv > 0) {
+                n_calc = this.n_pmt * this.i_n;
+                while (n_calc >= this.n_pv) {
+                    this.n_irn += irnInc;
+                    n_calc = this.n_pmt * (1 - 1 / Math.pow((1 + this.n_irn), this.i_n)) / this.n_irn;
+                    i++;
+                    if (i > 10000) {
+                        // TODO: add msg
+                        break;
+                    }
+                }
+            }
+            if (this.n_fv > 0) {
+                n_calc = this.n_pmt * this.i_n;
+                while (n_calc >= this.n_fv) {
+                    this.n_irn += irnInc;
+                    n_calc = this.n_pmt * ((Math.pow((1 + this.n_irn), this.i_n)) - 1) / this.n_irn;
+                    i++;
+                    if (i > 10000) {
+                        // TODO: add msg
+                        break;
+                    }
+                }
+            }
+        }
+        this.e_irn.innerText = "IR/n: " + this.round(this.n_irn,8);
+        this.s_expression = 'The interest rate is:';
+        this.s_number = this.round(this.n_irn * 100, 5) + ' % / period.';
+        this.n_tot = this.n_pv + this.n_pmt * this.i_n;
+        this.e_tot.innerText = "Total: " + this.round(this.n_tot);
     }
-
-
-
-
-    // calculateInterestRate() {
-    //     if ((this.n_pv > 0.0 || this.n_pmt > 0.0) && (this.n_fv > 0.0 || this.n_pmt > 0.0) && this.i_n > 0 && this.n_irn >= 0.0) {
-    //         if (this.n_fv === 0.0) this.n_fv = 0.000001;
-    //         let low = -1.0;
-    //         let high = 1.0;
-    //         let r = (low + high) / 2;
-    //         let i = 0;
-    //         const tolerance = 0.000001;
-    //         const maxLoop = 1 / tolerance;
-    //         while (Math.abs(this.n_fv - this.n_pv * Math.pow((1 + r), this.i_n) - this.n_pmt * ((Math.pow((1 + r), this.i_n) - 1) / r)) > tolerance) {
-    //             i++;
-    //             if (this.n_fv > this.n_pv * Math.pow((1 + r), this.i_n) + this.n_pmt * ((Math.pow((1 + r), this.i_n) - 1) / r)) {
-    //                 low = r;
-    //             } else {
-    //                 high = r;
-    //             }
-    //             r = (low + high) / 2;
-    //             if (i > maxLoop) {
-    //                 console.log("Error: maxLoop reached r:" + r + " low:" + low + " high:" + high);
-    //                 return;
-    //             }
-    //         }
-    //         console.log(r);
-    //         if (r < 0) return;
-    //         this.n_irn = r;
-    //         this.e_irn.innerText = "IR/n: " + this.round(this.n_irn);
-    //         this.s_expression = 'The interest rate is:';
-    //         this.s_number = this.round(this.n_irn * 100, 5) + ' % / period.';
-    //         this.n_tot = this.n_pv + this.n_pmt * this.i_n;
-    //         this.e_tot.innerText = "Total: " + this.round(this.n_tot);
-    //     }
-    // }
+    
     calculatePayPerPeriod() {
         if ((this.n_pv > 0.0 || this.n_fv > 0.0) && this.i_n > 0 && this.n_irn > 0 && this.n_pmt >= 0.0) {
             if (this.n_pv > 0.0 && this.n_fv > 0.0) {
@@ -233,7 +164,7 @@ calculateInterestRateUsinhPvAndFv() {
             }
             if (this.n_fv === 0.0 && this.n_pv > 0.0) {
                 let a = Math.pow((1 + this.n_irn), this.i_n);
-                let c = (1 - 1/a) / this.n_irn;
+                let c = (1 - 1 / a) / this.n_irn;
                 this.n_pmt = this.n_pv / c;
                 if (this.n_pmt < 0) return;
             }
@@ -394,24 +325,65 @@ calculateInterestRateUsinhPvAndFv() {
     }
 }
 
-const calc = new Calculator();
+const n_calc = new Calculator();
 
-// // this function calculate the value of monthly payment as function of the other parameters
-// function calculatePayment() {
-//     let pv = document.getElementById("pv").value;
-//     let fv = document.getElementById("fv").value;
-//     let n = document.getElementById("n").value;
-//     let irn = document.getElementById("irn").value;
-//     let pmt = document.getElementById("pmt").value;
 
-//     if (pv === '' || fv === '' || n === '' || irn === '' || pmt === '') {
-//         alert("Please fill all the fields!");
-//         return;
-//     }
-//     if (pv < 0 || fv < 0 || n < 0 || irn < 0 || pmt < 0) {
-//         alert("Please enter positive values!");
-//         return;
-//     }
-//     let payment = (pv * irn * Math.pow((1 + irn), n)) / (Math.pow((1 + irn), n) - 1) + pmt;
-//     document.getElementById("payment").value = payment.toFixed(2);
-// }
+// TODO: delete the functions below after test the class Calculator
+
+// function that calculate the compound interest rate per period as function of the follow parameters: present value, future value, number of periods. Result OK
+function calculateInterestRate2(n_pv, n_fv, i_n) {
+    let irn = Math.pow((n_fv / n_pv), (1 / i_n)) - 1;
+    return irn;
+}
+
+// function that calculate the compound interest rate per period as function of the follow parameters: present value, montly payment, number of periods. Ok 
+function calculateInterestRate3(n_pv, n_pmt, i_n) {
+    let pvCalc = n_pmt * i_n;
+    let irn = 0;
+    const irnInc = 0.0001;
+    let i = 0;
+    if (n_pv > pvCalc) {
+        console.log("irn*n must be less than pv, irn must be greater than 0");
+        return;
+    }
+    while (pvCalc >= n_pv) {
+        irn += irnInc;
+        if (i % 1000 === 0) console.log(i, pvCalc);
+        pvCalc = n_pmt * (1 - 1 / Math.pow((1 + irn), i_n)) / irn;
+        i++;
+        if (i > 10000) {
+            console.log("Loop exceded 10,000");
+            irn = null;
+            break;
+        }
+    }
+    console.log(i, pvCalc, irn);
+    return irn;
+}
+// function that calculate the compound interest rate per period as function of the follow parameters: future value, montly payment, number of periods. Ok
+function calculateInterestRate4(n_fv, n_pmt, i_n) {
+    let fvCalc = n_pmt * i_n;
+    let irn = 0;
+    const irnInc = 0.0001;
+    let i = 0;
+    if (n_fv < fvCalc) {
+        console.log("irn*n must be less than fv, irn must be greater than 0");
+        return;
+    }
+    while (fvCalc <= n_fv) {
+        irn += irnInc;
+        if (i % 1000 === 0) console.log(i, fvCalc);
+        fvCalc = n_pmt * ((Math.pow((1 + irn), i_n)) - 1) / irn;
+        i++;
+        if (i > 10000) {
+            console.log("Loop exceded 10,000");
+            irn = null;
+            break;
+        }
+    }
+    console.log(i, fvCalc, irn);
+    return irn;
+}
+
+// let irn = calculateInterestRate4(110, 10, 10);
+// console.log(irn);
