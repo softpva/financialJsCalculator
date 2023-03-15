@@ -34,7 +34,7 @@ class Calculator {
     }
 
     buildNumber(num) {
-        // TODO: rethink this method (it's a mess and has a bug)
+        
         if (this.s_expression.includes('=') && this.s_number[0] !== '0') {
             this.s_number = '0';
             this.s_expression = '';
@@ -71,7 +71,8 @@ class Calculator {
     }
     calculatePresentValue() {
         if ((this.n_fv > 0.0 || this.n_pmt > 0.0) && this.i_n > 0 && this.n_irn > 0.0 && this.n_pv >= 0.0) {
-            if (this.s_number === '.') this.pv = 0.0;
+            // console.log(this.s_number);
+            // if (this.s_number === '.') this.n_pv = 0.0;
             this.n_pv = this.n_fv / this.n_a() + this.n_pmt * this.n_c();
             if (this.n_pv < 0) return;
             this.e_pv.innerText = "PV: " + this.round(this.n_pv);
@@ -178,8 +179,17 @@ class Calculator {
         }
     }
 
+
+    // TODO: write if to s_number === '.' Ok: PV, 
     doFinanc(inner) {
         if (inner === 'PV') {
+            if (this.s_number === '.'){
+                this.n_pv = 0.0;
+                this.s_number = '0';
+                this.e_pv.innerText = "PV: " + this.n_pv;
+                this.show();
+                return;
+            }
             if (this.s_number === '0' || this.s_expression[0] === 'T') {
                 this.calculatePresentValue();
             } else if (parseFloat(this.s_number) >= 0.0) {
