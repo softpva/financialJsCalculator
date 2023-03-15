@@ -5,11 +5,8 @@ import draw from "./draw.js";
 TODO: 
 *** Check if the inputs are valid and consistent values, embebed draw.js in this class, insert alerts?
 *** Use toFixed() or toPrecision() and eliminate the round() method
-*** Think about the meaning of Total value.
-*** After n > x cavas must doesn't print individual values of pay/n.
 *** If the required fields are empty, show a message to fill them in.
 *** If the required fields are filled in, but the values are not valid, show a message to fill them in correctly.
-*** Show on canvas the value on irn.
 *** Change the criteria to turn zero the values of pv, fv, pmt, irn.
 */
 
@@ -80,8 +77,8 @@ class Calculator {
             this.e_pv.innerText = "PV: " + this.round(this.n_pv);
             this.s_expression = 'The present value is:';
             this.s_number = this.round(this.n_pv, 5);
-            this.n_tot = this.n_fv + this.n_pmt * this.i_n;
-            this.e_tot.innerText = "Total: " + this.round(this.n_tot);
+            this.n_tot = this.n_pmt * this.i_n;
+            this.e_tot.innerText = "PMT*n: " + this.round(this.n_tot);
         }
     }
     calculateFutureValue() {
@@ -91,8 +88,8 @@ class Calculator {
             this.e_fv.innerText = "FV: " + this.round(this.n_fv);
             this.s_expression = 'The future value is:';
             this.s_number = this.round(this.n_fv, 5);
-            this.n_tot = this.n_pv + this.n_pmt * this.i_n;
-            this.e_tot.innerText = "Total: " + this.round(this.n_tot);
+            this.n_tot = this.n_pmt * this.i_n;
+            this.e_tot.innerText = "PMT*n: " + this.round(this.n_tot);
         } else {
             this.n_fv = 0.0;
             return;
@@ -106,11 +103,10 @@ class Calculator {
             this.e_n.innerText = "n: " + this.i_n;
             this.s_expression = 'The number of periods is approximately:';
             this.s_number = Math.round(this.i_n);
-            this.n_tot = this.n_pv + this.n_pmt * this.i_n;
-            this.e_tot.innerText = "Total: " + this.round(this.n_tot);
+            this.n_tot = this.n_pmt * this.i_n;
+            this.e_tot.innerText = "PMT*n: " + this.round(this.n_tot);
         }
     }
-    // FIXME: this method has a bug when fv > 0, check it.
     calculateInterestRate() {
         if (this.n_pv > 0 && this.n_fv > 0 && this.i_n > 0 && this.n_pmt > 0) {
             // TODO: add other ifs to check data consistency
@@ -138,7 +134,7 @@ class Calculator {
             }
             if (this.n_fv > 0) {
                 n_calc = this.n_pmt * this.i_n;
-                while (n_calc >= this.n_fv) {
+                while (n_calc <= this.n_fv) {
                     this.n_irn += irnInc;
                     n_calc = this.n_pmt * ((Math.pow((1 + this.n_irn), this.i_n)) - 1) / this.n_irn;
                     i++;
@@ -149,13 +145,13 @@ class Calculator {
                 }
             }
         }
-        this.e_irn.innerText = "IR/n: " + this.round(this.n_irn,8);
+        this.e_irn.innerText = "IR/n: " + this.round(this.n_irn, 8);
         this.s_expression = 'The interest rate is:';
         this.s_number = this.round(this.n_irn * 100, 5) + ' % / period.';
-        this.n_tot = this.n_pv + this.n_pmt * this.i_n;
-        this.e_tot.innerText = "Total: " + this.round(this.n_tot);
+        this.n_tot = this.n_pmt * this.i_n;
+        this.e_tot.innerText = "PMT*n: " + this.round(this.n_tot);
     }
-    
+
     calculatePayPerPeriod() {
         if ((this.n_pv > 0.0 || this.n_fv > 0.0) && this.i_n > 0 && this.n_irn > 0 && this.n_pmt >= 0.0) {
             if (this.n_pv > 0.0 && this.n_fv > 0.0) {
@@ -177,6 +173,8 @@ class Calculator {
             this.e_pmt.innerText = "PMT: " + this.n_pmt;
             this.s_expression = 'The payment per period is:';
             this.s_number = this.round(this.n_pmt, 5);
+            this.n_tot = this.n_pmt * this.i_n;
+            this.e_tot.innerText = "PMT*n: " + this.round(this.n_tot);
         }
     }
 
@@ -238,7 +236,7 @@ class Calculator {
                 data.push(Math.round(this.n_pmt));
             if (this.n_fv > 0)
                 data[this.i_n.toFixed(0)] = Math.round(this.n_fv + this.n_pmt);
-            draw(canvas, data);
+            draw(canvas, data, (this.n_irn * 100).toFixed(4).toString());
             console.log(data);
             this.show();
         }
@@ -276,7 +274,7 @@ class Calculator {
         this.e_n.innerText = 'n:';
         this.e_irn.innerText = 'IR/n:';
         this.e_pmt.innerText = 'PMT:';
-        this.e_tot.innerText = 'Total:';
+        this.e_tot.innerText = 'PMT*n:';
         this.n_pv = 0.0;
         this.n_fv = 0.0;
         this.i_n = 0;
