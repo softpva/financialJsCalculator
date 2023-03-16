@@ -7,7 +7,7 @@ TODO:
 *** Use toFixed() or toPrecision() and eliminate the round() method
 *** If the required fields are empty, show a message to fill them in.
 *** If the required fields are filled in, but the values are not valid, show a message to fill them in correctly.
-*** Change the criteria to turn zero the values of pv, fv, pmt, irn.
+*** Eliminate logs and comments, refactor if necessary.
 */
 
 class Calculator {
@@ -180,7 +180,6 @@ class Calculator {
     }
 
 
-    // TODO: write if to s_number === '.' Ok: PV, 
     doFinanc(inner) {
         if (inner === 'PV') {
             if (this.s_number === '.'){
@@ -199,6 +198,13 @@ class Calculator {
             } else return;
         }
         if (inner === 'FV') {
+            if (this.s_number === '.'){
+                this.n_fv = 0.0;
+                this.s_number = '0';
+                this.e_fv.innerText = "FV: " + this.n_fv;
+                this.show();
+                return;
+            }
             if (this.s_number === '0' || this.s_expression[0] === 'T') {
                 this.calculateFutureValue();
             } else if (parseFloat(this.s_number) >= 0.0) {
@@ -208,6 +214,13 @@ class Calculator {
             } else return;
         }
         if (inner === 'n') {
+            if (this.s_number === '.'){
+                this.i_n = 0;
+                this.s_number = '0';
+                this.e_n.innerText = "n: " + this.i_n;
+                this.show();
+                return;
+            }
             if (this.s_number === '0' || this.s_expression[0] === 'T') {
                 this.calculateNumberOfPeriods();
             } else if (parseInt(this.s_number) >= 0) {
@@ -217,6 +230,13 @@ class Calculator {
             } else return;
         }
         if (inner === 'IR/n') {
+            if (this.s_number === '.'){
+                this.n_irn = 0.0;
+                this.s_number = '0';
+                this.e_irn.innerText = "IR/n: " + this.n_irn;
+                this.show();
+                return;
+            }
             if (this.s_number === '0' || this.s_expression[0] === 'T') {
                 this.calculateInterestRate();
             } else if (parseFloat(this.s_number) >= 0.0) {
@@ -226,6 +246,13 @@ class Calculator {
             } else return;
         }
         if (inner === 'PMT') {
+            if (this.s_number === '.'){
+                this.n_pmt = 0.0;
+                this.s_number = '0';
+                this.e_pv.innerText = "PMT: " + this.n_pmt;
+                this.show();
+                return;
+            }
             if (this.s_number === '0' || this.s_number[0] === 'T') {
                 this.calculatePayPerPeriod();
             } else if (parseFloat(this.s_number) >= 0.0) {
@@ -246,7 +273,7 @@ class Calculator {
                 data.push(Math.round(this.n_pmt));
             if (this.n_fv > 0)
                 data[this.i_n.toFixed(0)] = Math.round(this.n_fv + this.n_pmt);
-            draw(canvas, data, (this.n_irn * 100).toFixed(4).toString());
+            draw(canvas, data, (this.n_irn * 100).toFixed(2).toString());
             console.log(data);
             this.show();
         }
@@ -260,7 +287,7 @@ class Calculator {
         this.s_expression += '= ';
     }
 
-    round(s_num, prec = 2) {
+    round(s_num, prec = 6) {
         return parseFloat(parseFloat(s_num).toPrecision(prec)).toString();
     }
 
