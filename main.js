@@ -1,14 +1,8 @@
 import draw from "./draw.js";
 
 
-/*
-TODO: 
-*** Check if the inputs are valid and consistent values, embebed draw.js in this class, insert alerts?
-*** Use toFixed() or toPrecision() and eliminate the round() method
-*** If the required fields are empty, show a message to fill them in.
-*** If the required fields are filled in, but the values are not valid, show a message to fill them in correctly.
-*** Eliminate logs and comments, refactor if necessary.
-*/
+// TODO: Use toFixed() or toPrecision() and eliminate the round() method
+// TODO;  Eliminate logs and comments, refactor if necessary.
 
 class Calculator {
     e_expression = document.querySelector("[data-expression]");
@@ -34,7 +28,7 @@ class Calculator {
     }
 
     buildNumber(num) {
-        
+
         if (this.s_expression.includes('=') && this.s_number[0] !== '0') {
             this.s_number = '0';
             this.s_expression = '';
@@ -69,19 +63,22 @@ class Calculator {
     n_c() {
         return (1 - 1 / this.n_a()) / this.n_irn;
     }
+    // TODO: include check for consistente values and its respective alerts and eliminate redundancies 
     calculatePresentValue() {
         if ((this.n_fv > 0.0 || this.n_pmt > 0.0) && this.i_n > 0 && this.n_irn > 0.0 && this.n_pv >= 0.0) {
-            // console.log(this.s_number);
-            // if (this.s_number === '.') this.n_pv = 0.0;
             this.n_pv = this.n_fv / this.n_a() + this.n_pmt * this.n_c();
-            if (this.n_pv < 0) return;
             this.e_pv.innerText = "PV: " + this.round(this.n_pv);
             this.s_expression = 'The present value is:';
             this.s_number = this.round(this.n_pv, 5);
             this.n_tot = this.n_pmt * this.i_n;
             this.e_tot.innerText = "PMT*n: " + this.round(this.n_tot);
+            this.draw_canvas();
+            return;
         }
+        this.e_expression.innerText = "The values are not consistent, check your values";
+        return;
     }
+    // TODO: include check for consistente values and its respective alerts and eliminate redundancies
     calculateFutureValue() {
         if ((this.n_pv > 0.0 || this.n_pmt > 0.0) && this.i_n > 0 && this.n_irn > 0.0 && this.n_fv >= 0.0) {
             this.n_fv = this.n_pv * this.n_a() + this.n_pmt * this.n_b();
@@ -96,6 +93,7 @@ class Calculator {
             return;
         }
     }
+    // TODO: include check for consistente values and its respective alerts and eliminate redundancies
     calculateNumberOfPeriods() {
         if ((this.n_pv > 0.0 || this.n_pmt > 0.0) && (this.n_fv > 0.0 || this.n_pmt > 0.0) && this.n_irn > 0) {
             this.i_n = Math.log((this.n_fv * this.n_irn + this.n_pmt) / (this.n_pmt + this.n_pv * this.n_irn)) / Math.log(1 + this.n_irn);
@@ -108,6 +106,7 @@ class Calculator {
             this.e_tot.innerText = "PMT*n: " + this.round(this.n_tot);
         }
     }
+    // TODO: include check for consistente values and its respective alerts and eliminate redundancies
     calculateInterestRate() {
         if (this.n_pv > 0 && this.n_fv > 0 && this.i_n > 0 && this.n_pmt > 0) {
             // TODO: add other ifs to check data consistency
@@ -152,7 +151,7 @@ class Calculator {
         this.n_tot = this.n_pmt * this.i_n;
         this.e_tot.innerText = "PMT*n: " + this.round(this.n_tot);
     }
-
+    // TODO: include check for consistente values and its respective alerts and eliminate redundancies
     calculatePayPerPeriod() {
         if ((this.n_pv > 0.0 || this.n_fv > 0.0) && this.i_n > 0 && this.n_irn > 0 && this.n_pmt >= 0.0) {
             if (this.n_pv > 0.0 && this.n_fv > 0.0) {
@@ -179,32 +178,75 @@ class Calculator {
         }
     }
 
-
-    doFinanc(inner) {
+    doDblClick(inner) {
         if (inner === 'PV') {
-            if (this.s_number === '.'){
-                this.n_pv = 0.0;
-                this.s_number = '0';
-                this.e_pv.innerText = "PV: " + this.n_pv;
-                this.show();
-                return;
-            }
-            if (this.s_number === '0' || this.s_expression[0] === 'T') {
-                this.calculatePresentValue();
-            } else if (parseFloat(this.s_number) >= 0.0) {
-                this.n_pv = parseFloat(this.s_number);
-                this.s_number = '0';
-                this.e_pv.innerText = "PV: " + this.n_pv;
-            } else return;
+            this.n_pv = 0.0;
+            this.s_number = '0';
+            this.s_expression = '';
+            this.e_pv.innerText = "PV: " + this.n_pv;
+            this.show();
+            this.draw_canvas();
+            return;
         }
         if (inner === 'FV') {
-            if (this.s_number === '.'){
-                this.n_fv = 0.0;
+            this.n_fv = 0.0;
+            this.s_number = '0';
+            this.s_expression = '';
+            this.e_fv.innerText = "FV: " + this.n_fv;
+            this.show();
+            this.draw_canvas();
+            return;
+        }
+        if (inner === 'n') {
+            this.i_n = 0;
+            this.s_number = '0';
+            this.s_expression = '';
+            this.e_n.innerText = "n: " + this.i_n;
+            this.show();
+            this.draw_canvas();
+            return;
+        }
+        if (inner === 'IR/n') {
+            this.n_irn = 0.0;
+            this.s_number = '0';
+            this.s_expression = '';
+            this.e_irn.innerText = "IR/n: " + this.n_irn;
+            this.show();
+            this.draw_canvas();
+            return;
+        }
+        //FIXME: this.e_pmt.innerText = "PMT: " + this.n_pmt; is not working on double click
+        if (inner === 'PMT') {
+                this.n_pmt = 0.0;
                 this.s_number = '0';
-                this.e_fv.innerText = "FV: " + this.n_fv;
+                this.s_expression = '';
+                this.e_pv.innerText = "PMT: " + this.n_pmt;
                 this.show();
+                this.draw_canvas();
                 return;
             }
+    }
+
+    doFinanc(inner) {
+        // TODO: test and chk why this.s_expression[0] === 'T' is necessary
+        if (inner === 'PV') {
+            if (this.s_number === '0' && this.n_pv === 0) {
+                this.calculatePresentValue();
+                return;
+            }
+            if (parseFloat(this.s_number) > 0.0) {
+                this.n_pv = parseFloat(this.s_number);
+                this.s_number = '0';
+                this.e_number.innerText = this.s_number;
+                this.e_pv.innerText = "PV: " + this.n_pv;
+                this.draw_canvas();
+                return;
+            }
+            this.e_expression.innerText = 'The present value must be greater than zero.';
+            // return;
+        }
+        // TODO: include check for consistente values and its respective alerts and eliminate redundancies
+        if (inner === 'FV') {
             if (this.s_number === '0' || this.s_expression[0] === 'T') {
                 this.calculateFutureValue();
             } else if (parseFloat(this.s_number) >= 0.0) {
@@ -213,14 +255,8 @@ class Calculator {
                 this.e_fv.innerText = "FV: " + this.n_fv;
             } else return;
         }
+        // TODO: include check for consistente values and its respective alerts and eliminate redundancies
         if (inner === 'n') {
-            if (this.s_number === '.'){
-                this.i_n = 0;
-                this.s_number = '0';
-                this.e_n.innerText = "n: " + this.i_n;
-                this.show();
-                return;
-            }
             if (this.s_number === '0' || this.s_expression[0] === 'T') {
                 this.calculateNumberOfPeriods();
             } else if (parseInt(this.s_number) >= 0) {
@@ -229,14 +265,8 @@ class Calculator {
                 this.e_n.innerText = "n: " + this.i_n;
             } else return;
         }
+        // TODO: include check for consistente values and its respective alerts and eliminate redundancies
         if (inner === 'IR/n') {
-            if (this.s_number === '.'){
-                this.n_irn = 0.0;
-                this.s_number = '0';
-                this.e_irn.innerText = "IR/n: " + this.n_irn;
-                this.show();
-                return;
-            }
             if (this.s_number === '0' || this.s_expression[0] === 'T') {
                 this.calculateInterestRate();
             } else if (parseFloat(this.s_number) >= 0.0) {
@@ -245,20 +275,15 @@ class Calculator {
                 this.e_irn.innerText = "IR/n: " + this.n_irn;
             } else return;
         }
+        // TODO: include check for consistente values and its respective alerts and eliminate redundancies
         if (inner === 'PMT') {
-            if (this.s_number === '.'){
-                this.n_pmt = 0.0;
-                this.s_number = '0';
-                this.e_pv.innerText = "PMT: " + this.n_pmt;
-                this.show();
-                return;
-            }
             if (this.s_number === '0' || this.s_number[0] === 'T') {
                 this.calculatePayPerPeriod();
             } else if (parseFloat(this.s_number) >= 0.0) {
                 this.n_pmt = parseFloat(this.s_number);
                 this.s_number = '0';
                 this.e_pmt.innerText = "PMT: " + this.n_pmt;
+                this.e_tot.innerText = "PMT*n: " + this.round(this.n_pmt * this.i_n);
             } else return;
         }
         this.draw_canvas();
@@ -355,6 +380,9 @@ class Calculator {
         document.querySelectorAll("[data-fin]").forEach(button => {
             button.addEventListener('click', () => {
                 this.doFinanc(button.textContent);
+            })
+            button.addEventListener('dblclick', () => {
+                this.doDblClick(button.textContent);
             })
         })
     }
