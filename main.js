@@ -2,7 +2,7 @@ import draw from "./draw.js";
 
 
 // TODO;  Eliminate comments
-// TODO: Test aleatory values and check if the results are correct.
+// TODO: Test aleatory values and conditions to check if the results are correct.
 
 class Calculator {
     e_expression = document.querySelector("[data-expression]");
@@ -149,13 +149,14 @@ class Calculator {
                 this.s_expression = 'ATTENTION: The interest rate is negative, check your values';
                 this.show();
             }
-
-        }
-        this.e_irn.innerText = "IR/n: " + this.round(this.n_irn, 8);
+        }        
         this.s_expression = 'The interest rate is:';
         this.s_number = this.round(this.n_irn * 100, 5) + ' % / period.';
         this.n_pmtXn = this.n_pmt * this.i_n;
+        this.e_irn.innerText = "IR/n: " + this.round(this.n_irn, 8);
         this.e_pmtXn.innerText = "PMT*n: " + this.round(this.n_pmtXn);
+        this.show();
+        this.draw_canvas();        
     }
 
     calculatePayPerPeriod() {
