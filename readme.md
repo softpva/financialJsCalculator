@@ -60,11 +60,11 @@
 > ## And, finally, observe if n is too large, the graph synthetically indicates the values of PMT and n
 > ![get an interest rate](./readmeImages/pict_13.gif) 
 
+# Models
 
+# Tecnologies
 
-
-
-
+# Kick off
 
 # Author
 > Pedro Vitor Abreu

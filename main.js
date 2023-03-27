@@ -2,7 +2,16 @@ import draw from "./draw.js";
 
 
 // TODO;  Eliminate comments
-// TODO: Test aleatory values and conditions to check if the results are correct.
+/* TODO: Tests: this x calc sheet:
+
+      PV : 171.86, Fv: 100, n: 10, pmt: 10, irn: 0.02  PV: 171.86 ok
+      PV : 82.03, Fv: 100, n: 10, pmt: 0, irn: 0.02  PV: 82.03 ok
+      PV: 89.83, Fv: 0, n: 10, pmt: 10, irn: 0.02  PV: 89.83 ok
+
+      FV: 109.50, PV: 0, n: 10, pmt: 10, irn: 0.02  FV: 109.50 ok
+
+*/
+    
 
 class Calculator {
     e_expression = document.querySelector("[data-expression]");
